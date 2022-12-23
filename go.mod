@@ -3,6 +3,7 @@ module websocket-go
 go 1.18
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/thomascwei/golang_logger v0.0.0-20220907014407-31e718894486
 )

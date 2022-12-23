@@ -47,7 +47,8 @@ func (c *Client) readMessages() {
 		// Graceful Close the Connection once this function is done
 		c.manager.removeClient(c)
 	}()
-
+	// Set Max Size of Messages in Bytes
+	c.connection.SetReadLimit(512)
 	// Configure Wait time for Pong response, use Current time + pongWait
 	// This has to be done here to set the first initial timer.
 	if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {

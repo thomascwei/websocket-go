@@ -9,3 +9,6 @@ ___Tutorial on how to use WebSockets to build real-time APIs in Go___
 2. websocket: `gorilla\webSocket`
 3. WebSocket connection in Go only allows one concurrent writer, so we can handle this by using an unbuffered channel
 4. The HeartBeats — Ping & Pong
+5. Limiting Message Size
+6. Authentication
+7. Encrypting Traffic Using HTTPS & WSS
