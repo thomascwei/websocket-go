@@ -63,10 +63,9 @@ func NewManager(ctx context.Context) *Manager {
 
 // setupEventHandlers configures and adds all handlers
 func (m *Manager) setupEventHandlers() {
-	m.handlers[EventSendMessage] = func(e Event, c *Client) error {
-		Logger.Info(e)
-		return nil
-	}
+	m.handlers[EventSendMessage] = SendMessageHandler
+	m.handlers[EventChangeRoom] = ChatRoomHandler
+
 }
 
 // routeEvent is used to make sure the correct event goes into the correct handler

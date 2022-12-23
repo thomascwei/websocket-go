@@ -63,6 +63,26 @@
     var selectedchat = "general";
 
     /**
+     * SendMessageEvent is used to send messages to other clients
+     * */
+    class SendMessageEvent {
+        constructor(message, from) {
+            this.message = message;
+            this.from = from;
+        }
+    }
+    /**
+     * NewMessageEvent is messages comming from clients
+     * */
+    class NewMessageEvent {
+        constructor(message, from, sent) {
+            this.message = message;
+            this.from = from;
+            this.sent = sent;
+        }
+    }
+
+    /**
      * Event is used to wrap all messages Send and Recieved
      * on the Websocket
      * The type is used as a RPC
@@ -87,7 +107,9 @@
         }
         switch (event.type) {
             case "new_message":
-                console.log("new message");
+                // Format payload
+                const messageEvent = Object.assign(new NewMessageEvent, event.payload);
+                appendChatMessage(messageEvent);
                 break;
             default:
                 alert("unsupported message type");
@@ -95,7 +117,28 @@
         }
 
     }
+    /**
+     * appendChatMessage takes in new messages and adds them to the chat
+     * */
+    function appendChatMessage(messageEvent) {
+        var date = new Date(messageEvent.sent);
+        // format message
+        const formattedMsg = `${date.toLocaleString()}: ${messageEvent.message}`;
+        // Append Message
+        textarea = document.getElementById("chatmessages");
+        textarea.innerHTML = textarea.innerHTML + "\n" + formattedMsg;
+        textarea.scrollTop = textarea.scrollHeight;
+    }
 
+
+    /**
+     * ChangeChatRoomEvent is used to switch chatroom
+     * */
+    class ChangeChatRoomEvent {
+        constructor(name) {
+            this.name = name;
+        }
+    }
     /**
      * changeChatRoom will update the value of selectedchat
      * and also notify the server that it changes chatroom
@@ -104,17 +147,25 @@
         // Change Header to reflect the Changed chatroom
         var newchat = document.getElementById("chatroom");
         if (newchat != null && newchat.value != selectedchat) {
-            console.log(newchat);
+            selectedchat = newchat.value;
+            header = document.getElementById("chat-header").innerHTML = "Currently in chat: " + selectedchat;
+
+            let changeEvent = new ChangeChatRoomEvent(selectedchat);
+            sendEvent("change_room", changeEvent);
+            textarea = document.getElementById("chatmessages");
+            textarea.innerHTML = `You changed room into: ${selectedchat}`;
         }
         return false;
     }
+
     /**
      * sendMessage will send a new message onto the Chat
      * */
     function sendMessage() {
         var newmessage = document.getElementById("message");
         if (newmessage != null) {
-            sendEvent("send_message", newmessage.value)
+            let outgoingEvent = new SendMessageEvent(newmessage.value, "percy");
+            sendEvent("send_message", outgoingEvent)
         }
         return false;
     }
@@ -143,19 +194,7 @@
         // Check if the browser supports WebSocket
         if (window["WebSocket"]) {
             console.log("supports websockets");
-            // Connect to websocket
-            conn = new WebSocket("ws://" + document.location.host + "/ws");
 
-            // Add a listener to the onmessage event
-            conn.onmessage = function (evt) {
-                console.log(evt);
-                // parse websocket message as JSON
-                const eventData = JSON.parse(evt.data);
-                // Assign JSON data to new Event Object
-                const event = Object.assign(new Event, eventData);
-                // Let router manage message
-                routeEvent(event);
-            }
 
         } else {
             alert("Not supporting websockets");

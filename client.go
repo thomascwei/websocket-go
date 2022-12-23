@@ -29,6 +29,8 @@ type Client struct {
 	manager *Manager
 	// egress is used to avoid concurrent writes on the WebSocket
 	egress chan Event
+	// chatroom is used to know what room user is in
+	chatroom string
 }
 
 // NewClient is used to initialize a new Client with all required values initialized
